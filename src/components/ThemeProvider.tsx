@@ -12,21 +12,21 @@ export default function ThemeProvider({
   const dispatch = useDispatch()
   const darkMode = useSelector(selectDarkMode)
 
+  // Only run on client-side
   useEffect(() => {
-    // Check for system preference on initial load
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    dispatch(setTheme(prefersDark))
-
-    // Set up listener for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e: MediaQueryListEvent) => {
-      dispatch(setTheme(e.matches))
+    // Initialize theme from localStorage if available
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme) {
+      dispatch(setTheme(savedTheme === 'dark'))
+    } else {
+      // If no theme in localStorage, check system preference and save to localStorage
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      dispatch(setTheme(prefersDark))
+      localStorage.setItem('theme', prefersDark ? 'dark' : 'light')
     }
-    
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [dispatch])
+  }, [dispatch]) // Only run once on mount
 
+  // Handle theme changes
   useEffect(() => {
     const root = document.documentElement
     if (darkMode) {
@@ -34,6 +34,7 @@ export default function ThemeProvider({
     } else {
       root.classList.remove('dark')
     }
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
 
   return <>{children}</>

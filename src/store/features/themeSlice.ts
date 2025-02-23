@@ -5,6 +5,7 @@ interface ThemeState {
   darkMode: boolean
 }
 
+// Start with a default state - actual state will be set by ThemeProvider on client
 const initialState: ThemeState = {
   darkMode: false
 }
